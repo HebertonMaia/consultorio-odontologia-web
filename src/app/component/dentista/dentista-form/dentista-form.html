@@ -1,0 +1,109 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-person-badge"></i> {{ (edicaoTela() ? "Editar Dentista" : "Novo Dentista") }}</h2>
+    <button type="button" class="btn btn-outline-secondary" routerLink="/dentistas">
+      Voltar
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+
+      <!-- row = linha do grid; as colunas dentro dela dividem o espaço.
+           g-3 = espaço entre os campos -->
+      <div class="row g-3">
+
+        <!-- col-md-6 = ocupa metade da linha em tela grande;
+             no celular cada campo ocupa a linha inteira sozinho -->
+        <div class="col-md-6">
+          <!-- for="nome" liga o label ao input de id="nome":
+               clicando no texto, o cursor vai para o campo -->
+          <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+          <input type="text" id="nome" class="form-control" required [(ngModel)]="nome" #campoNome="ngModel"
+            [class.is-invalid]="campoNome.invalid && campoNome.touched">
+          <div class="invalid-feedback">Informe um nome válido</div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="croUf" class="form-label">UF do CRO</label>
+          <select id="croUf" class="form-select" [(ngModel)]="croUf"
+            required #campoCroUf="ngModel"
+            [class.is-invalid]="campoCroUf.invalid && campoCroUf.touched">
+            <option value="">Selecione</option>
+            @for (uf of ufs; track uf) {
+            <option [value]="uf">{{ uf }}</option>
+            }
+          </select>
+          <div class="invalid-feedback">Informe uma uf válida</div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="cro" class="form-label">Número do CRO <span class="text-danger">*</span></label>
+          <!-- 0 = dígito obrigatório; 9 = dígito opcional → aceita de 1 a 6 números -->
+          <input type="text" id="cro" class="form-control" mask="099999" [(ngModel)]="cro"
+            required #campoCro="ngModel" [class.is-invalid]="campoCro.invalid && campoCro.touched">
+            <div class="invalid-feedback">Informe um CRO válido</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" class="form-select" [(ngModel)]="status">
+            <option value="1">ATIVO</option>
+            <option value="0">INATIVO</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label for="email" class="form-label">E-mail</label>
+          <!-- type="email" ajuda no celular: o teclado já vem com o @ -->
+          <input type="email" id="email" class="form-control" [(ngModel)]="email">
+        </div>
+
+        <div class="col-md-3">
+
+        <app-telefone-lista [(telefoneListaCpm)]="telefoneLista" />
+
+        </div>
+        <div class="col-md-6">
+          <label for="especialidade" class="form-label">Especialidade</label>
+          <div class="input-group">
+            <select id="especialidade" class="form-select" [(ngModel)]="especialidade">
+              @for (especialidade of especialidadesBancoOrderBy(); track especialidade.especialidadeId) {
+                <option [value]="especialidade.especialidadeId">{{ especialidade.descricao }}</option>
+              }
+            </select>
+            <button class="btn btn-success btn-sm" type="button" (click)="incluiEspecialidadeLista()"><i
+                class="bi bi-plus-lg"></i></button>
+          </div>
+
+          <!-- A lista aparece aqui embaixo -->
+          <div class="mt-2">
+            @for (especialidade of especialidadeLista(); track $index) {
+            <span class="badge text-bg-secondary fs-6 me-1 mb-1">
+              {{ especialidade.descricao }}
+              <button type="button" class="btn-close btn-close-white ms-1" (click)="removerEspecialidade(especialidade.especialidadeId)"></button>
+            </span>
+            } @empty {
+            <small class="text-muted">Nenhuma especialidade adicionada</small>
+            }
+          </div>
+        </div>
+      </div>
+      @if(erro().length > 0) {
+      <div class="alert alert-danger mt-3">
+        @for (erro of erro(); track $index) {
+        <div>{{ erro }}</div>
+        }
+      </div>
+      }
+      <!-- d-flex + justify-content-end = botão alinhado à direita
+           mt-4 = espaço acima, separando dos campos -->
+      <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn btn-primary" (click)="salvarDentista()" [disabled]="salvando()">
+          <i class="bi bi-check-lg"></i> Salvar Dentista
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

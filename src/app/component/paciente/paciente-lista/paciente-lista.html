@@ -1,0 +1,114 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-people"></i> Pacientes</h2>
+
+    <button type="button" class="btn btn-primary" [routerLink]="['/pacientes/novo']">
+      <i class="bi bi-plus-lg"></i> Novo Paciente
+    </button>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <!-- NOME -->
+        <div class="col-md-4">
+          <label for="filtroNome" class="form-label">Nome</label>
+          <input type="text" id="filtroNome" class="form-control" [(ngModel)]="filtroNome">
+        </div>
+        <!-- CPF -->
+        <div class="col-md-3">
+          <label for="filtroCpf" class="form-label">CPF</label>
+          <input type="text" id="filtroCpf" class="form-control" mask="000.000.000-00" [(ngModel)]="filtroCpf">
+        </div>
+        <!-- STATUS -->
+        <div class="col-md-3">
+          <label for="filtroStatus" class="form-label">Status</label>
+          <select id="filtroStatus" class="form-select" [(ngModel)]="filtroStatus">
+            <option value="1">ATIVO</option>
+            <option value="0">INATIVO</option>
+          </select>
+        </div>
+        <!-- BOTÃO -->
+        <div class="col-md-2">
+          <button type="button" class="btn btn-success w-100" (click)="pesquisarFiltros()" [disabled]="carregando()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- No template, lê-se o signal CHAMANDO como função: carregando() -->
+  @if (carregando()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  } @else if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+  } @else {
+  <!-- card = caixa com fundo um pouco mais claro que a página -->
+  <div class="card">
+    <div class="card-body">
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th class="text-center">CPF</th>
+              <th class="text-center">Telefones</th>
+              <!--<th class="text-center">Consultas Realizadas</th>
+              <th class="text-center">Consultas Agendadas</th>-->
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- @for repete o bloco para cada paciente.
+               track paciente.id: diz ao Angular como identificar cada linha,
+               assim ele redesenha só o que mudou (é obrigatório). -->
+            @for (paciente of pacientesOrderBy(); track paciente.pacienteId) {
+            <tr>
+              <td>{{ paciente.pacienteId }}</td>
+              <td>{{ paciente.nome }}</td>
+              <td class="text-center">{{ paciente.cpf }}</td>
+              <td class="text-center">
+                <!-- @for dentro de @for: telefone é um array.
+                     $index = posição do item; útil quando o item não tem id. -->
+                @for (tel of paciente.telefones; track $index) {
+                <div>{{ tel }}</div>
+                }
+              </td>
+              <!--<td class="text-center">
+                <span class="badge text-bg-success fs-6">
+                  {{ (contarConsultas(paciente.pacienteId, STATUS_REALIZADA)) }}
+                </span>
+              </td>
+              <td class="text-center">
+                <span class="badge text-bg-warning fs-6">
+                  {{ contarConsultas(paciente.pacienteId, STATUS_AGENDADA) }}
+                </span>
+              </td>-->
+              <td>
+                <button type="button" class="btn btn-sm btn-warning"
+                  [routerLink]="['/pacientes', paciente.pacienteId, 'editar']">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </td>
+            </tr>
+            } @empty {
+            <!-- @empty aparece quando a lista vem vazia -->
+            <tr>
+              <td colspan="7" class="text-center text-muted">Nenhum paciente cadastrado.</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  }
+</div>

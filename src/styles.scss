@@ -1,0 +1,92 @@
+// ===== Tema Carvão e Oliva (escuro) =====
+// Troca as cores do modo escuro do Bootstrap pelas nossas.
+// As linhas "-rgb" são a mesma cor escrita em números;
+// o Bootstrap usa essa versão quando precisa da cor meio transparente
+// (ex.: as listras da tabela).
+[data-bs-theme="dark"] {
+  --bs-body-bg: #1d1c19;                    // fundo da página
+  --bs-body-bg-rgb: 29, 28, 25;
+  --bs-body-color: #ddd9cc;                 // texto normal
+  --bs-body-color-rgb: 221, 217, 204;
+  --bs-emphasis-color: #efece0;             // texto forte (títulos, tabela)
+  --bs-emphasis-color-rgb: 239, 236, 224;
+  --bs-secondary-color: #a29d8e;            // texto apagado (text-muted)
+  --bs-tertiary-bg: #2f2d27;                // fundo ao passar o mouse no submenu
+  --bs-border-color: #3a3831;               // bordas
+  --bs-border-color-translucent: #3a3831;
+  --bs-primary-rgb: 180, 214, 105;          // cor "primary" (ex.: o spinner de carregando)
+  --bs-link-color: #b4d669;                 // links
+  --bs-link-color-rgb: 180, 214, 105;
+  --bs-link-hover-color: #cfe595;
+  --bs-link-hover-color-rgb: 207, 229, 149;
+}
+
+// Cartão um pouco mais claro que o fundo
+.card {
+  --bs-card-bg: #272621;
+  --bs-card-border-radius: 12px;
+}
+
+// Tabela sem fundo próprio: fica com a cor do cartão onde ela está
+.table {
+  --bs-table-bg: transparent;
+}
+
+// Botão principal (btn-primary) e verde (btn-success: pesquisar, entrar, salvar)
+// na mesma cor do tema, no lugar do azul e do verde vivo do Bootstrap
+.btn-primary,
+.btn-success {
+  --bs-btn-bg: #5f7f2e;
+  --bs-btn-border-color: #5f7f2e;
+  --bs-btn-hover-bg: #506b26;
+  --bs-btn-hover-border-color: #506b26;
+  --bs-btn-active-bg: #42571f;
+  --bs-btn-active-border-color: #42571f;
+}
+
+.btn:disabled,
+.btn.disabled {
+  pointer-events: auto;
+  cursor: not-allowed;
+}
+
+// ===== Labels (badges) suaves =====
+// Em vez da cor sólida do Bootstrap, a label fica com fundo translúcido
+// (a cor "esmaecida"), uma borda fininha e o texto na versão clara da mesma cor.
+// Cada variação só troca duas variáveis: --bdg-rgb (a cor em números) e --bdg-text.
+.badge {
+  --bdg-rgb: 162, 157, 142;          // padrão: cinza
+  --bdg-text: #cfcabb;
+  font-weight: 600;
+}
+
+// O Bootstrap pinta o badge com "!important", por isso aqui também precisa.
+// O [class*="text-bg-"] deixa esta regra mais forte que a do Bootstrap.
+.badge[class*="text-bg-"] {
+  background-color: rgba(var(--bdg-rgb), 0.15) !important;
+  color: var(--bdg-text) !important;
+  border: 1px solid rgba(var(--bdg-rgb), 0.35);
+}
+
+.badge.text-bg-primary   { --bdg-rgb: 96, 165, 250;  --bdg-text: #9cc6fb; }   // Agendada
+.badge.text-bg-info      { --bdg-rgb: 56, 189, 248;  --bdg-text: #7dd3fc; }
+.badge.text-bg-success   { --bdg-rgb: 74, 222, 128;  --bdg-text: #86efac; }   // Finalizada / Ativo
+.badge.text-bg-warning   { --bdg-rgb: 251, 191, 36;  --bdg-text: #fcd34d; }   // Reagendada / Recepcionista
+.badge.text-bg-danger    { --bdg-rgb: 248, 113, 113; --bdg-text: #fca5a5; }   // Canceladas / Inativo
+.badge.text-bg-secondary { --bdg-rgb: 162, 157, 142; --bdg-text: #cfcabb; }   // Ausências / telefones
+.badge.text-bg-light     { --bdg-rgb: 221, 217, 204; --bdg-text: #ddd9cc; }
+
+// ===== Horário =====
+// Horário da consulta e horas dos logs: verde-oliva de destaque, como nos modelos.
+.horario {
+  color: var(--bs-link-color);
+}
+
+// ===== Logo do consultório (sorriso e dente) =====
+// O tamanho acompanha a letra ao lado (em); a cor vem do texto (currentColor).
+.logo-consultorio {
+  width: 1.3em;
+  height: 1.3em;
+  vertical-align: -0.3em;
+  flex-shrink: 0;
+}

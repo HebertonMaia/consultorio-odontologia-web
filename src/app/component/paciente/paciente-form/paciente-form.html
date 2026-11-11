@@ -1,0 +1,211 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-people"></i> {{ (edicaoTela() ? "Editar Paciente" : "Novo Paciente") }}</h2>
+    <button type="button" class="btn btn-outline-secondary" routerLink="/pacientes">
+      Voltar
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+
+      <!-- row = linha do grid; as colunas dentro dela dividem o espaço.
+           g-3 = espaço entre os campos -->
+      <div class="row g-3 mb-3">
+
+        <!-- col-md-6 = ocupa metade da linha em tela grande;
+             no celular cada campo ocupa a linha inteira sozinho -->
+        <div class="col-md-6">
+          <!-- for="nome" liga o label ao input de id="nome":
+               clicando no texto, o cursor vai para o campo -->
+          <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+          <input type="text" id="nome" class="form-control" required [(ngModel)]="nome" #campoNome="ngModel"
+          [class.is-invalid]="campoNome.invalid && campoNome.touched">
+          <div class="invalid-feedback">Informe um nome válido</div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="cpf" class="form-label">CPF</label>
+          <input type="text" id="cpf" class="form-control" mask="000.000.000-00" [(ngModel)]="cpf">
+        </div>
+
+        <div class="col-md-3">
+          <label for="dataNascimento" class="form-label">Data de nascimento <span class="text-danger">*</span></label>
+          <!-- type="date" já mostra o calendário do navegador -->
+          <input type="date" id="dataNascimento" class="form-control" [(ngModel)]="dataNascimento" required
+          #campoDataNascimento="ngModel" [class.is-invalid]="campoDataNascimento.invalid && campoDataNascimento.touched">
+          <div class="invalid-feedback">Informe uma data de nascimento válida</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="email" class="form-label">E-mail</label>
+          <!-- type="email" ajuda no celular: o teclado já vem com o @ -->
+          <input type="email" id="email" class="form-control" [(ngModel)]="email">
+        </div>
+
+        <div class="col-md-3">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" class="form-select" [(ngModel)]="status">
+            <option value="1">ATIVO</option>
+            <option value="0">INATIVO</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="status" class="form-label">Sexo</label>
+          <select id="status" class="form-select" [(ngModel)]="sexo">
+            <option value="">Selecione</option>
+            <option value="M">MASCULINO</option>
+            <option value="F">FEMININO</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="cep" class="form-label">CEP <span class="text-danger">*</span></label>
+          <input type="text" id="cep" class="form-control" mask="00000-000" [(ngModel)]="cep" required
+            [dropSpecialCharacters]="false" (blur)="consultaCep()"
+            #campoCep="ngModel" [class.is-invalid]="campoCep.invalid && campoCep.touched">
+            <div class="invalid-feedback">Informe um cep válido</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="logradouro" class="form-label">Logradouro <span class="text-danger">*</span></label>
+          <input type="text" id="logradouro" class="form-control" [(ngModel)]="logradouro" required
+          #campoLogradouro="ngModel" [class.is-invalid]="campoLogradouro.invalid && campoLogradouro.touched">
+          <div class="invalid-feedback">Informe um logradouro válido</div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="numero" class="form-label">Número <span class="text-danger">*</span></label>
+          <input type="text" id="numero" class="form-control" [(ngModel)]="numero" required
+          #campoNumero="ngModel" [class.is-invalid]="campoNumero.invalid && campoNumero.touched">
+          <div class="invalid-feedback">Informe um número válido</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="complemento" class="form-label">Complemento</label>
+          <input type="text" id="complemento" class="form-control" [(ngModel)]="complemento">
+        </div>
+        <div class="col-md-6">
+          <label for="bairro" class="form-label">Bairro <span class="text-danger">*</span></label>
+          <input type="text" id="bairro" class="form-control" [(ngModel)]="bairro"
+          required #campoBairro="ngModel" [class.is-invalid]="campoBairro.invalid && campoBairro.touched">
+          <div class="invalid-feedback">Informe um bairro válido</div>
+        </div>
+        <div class="col-md-6">
+          <label for="cidade" class="form-label">Cidade <span class="text-danger">*</span></label>
+          <input type="text" id="cidade" class="form-control" [(ngModel)]="cidade" required
+           #campoCidade="ngModel" [class.is-invalid]="campoCidade.invalid && campoCidade.touched">
+          <div class="invalid-feedback">Informe uma cidade válida</div>
+        </div>
+        <div class="col-md-6">
+          <label for="uf" class="form-label">Uf <span class="text-danger">*</span></label>
+          <select id="uf" class="form-select" [(ngModel)]="uf" required
+           #campoUf="ngModel" [class.is-invalid]="campoUf.invalid && campoUf.touched">
+            <option value="">Selecione</option>
+            @for (uf of ufs; track $index) {
+            <option [value]="uf">{{ uf }}</option>
+            }
+          </select>
+          <div class="invalid-feedback">Informe uma uf válido</div>
+        </div>
+
+        <div class="col-md-4">
+          <app-telefone-lista [(telefoneListaCpm)]="telefoneLista" />
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-hospital"></i>
+          <span class="fw-semibold">Convênios</span>
+        </div>
+
+          <!-- PACIENTE CONVÊNIO -->
+          <div class="card-body">
+              <!-- LINHA DE INCLUSÃO -->
+              <div class="row g-2 align-items-end mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Convênio</label>
+                  <select class="form-select" [(ngModel)]="convenio">
+                    <option value="">Selecione</option>
+                    @for (c of listaConvenioOrderBy(); track c.convenioId) {
+                      <option [value]="c.convenioId">{{ c.nomeFantasia }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Nº Carteirinha</label>
+                  <input type="text" class="form-control" [(ngModel)]="numCarteirinha">
+                </div>
+                <div class="col-md-2">
+                  <button type="button" class="btn btn-success w-100" (click)="addConvenioList()">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                </div>
+              </div>
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr class="text-muted small">
+                    <th class="text-start">Convênio</th>
+                    <th class="text-center">Nº Carteirinha</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center"></th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  @for (pacConvenio of listPacienteConvenio(); track pacConvenio.pacienteConvenioId) {
+                  <tr>
+                    <td class="text-start">{{ pacConvenio.convenioNome }}</td>
+                    <td class="text-center">{{ pacConvenio.numeroCarteirinha }}</td>
+                    <td class="text-center"> @if(pacConvenio.ativo) {
+                        <span class="badge text-bg-success"><i class="bi bi-check-circle"></i> Ativo</span>
+                      } @else{
+                        <span class="badge text-bg-secondary"><i class="bi bi-x-circle"></i> Inativo</span>
+                      }
+                    </td>
+                    <td class="text-center">
+                      @if(pacConvenio.ativo) {
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="pacConvenio.ativo = false">
+                          <i class="bi bi-toggle-off"></i> Desativar
+                        </button>
+                      } @else {
+                        <button type="button" class="btn btn-sm btn-outline-success" (click)="pacConvenio.ativo = true">
+                          <i class="bi bi-toggle-on"></i> Ativar
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                  } @empty {
+                  <tr>
+                    <td colspan="4" class="text-center text-muted py-3">
+                      <i class="bi bi-inbox"></i> Nenhum convênio vinculado
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+          </div>
+        </div>
+
+      @if(erro().length > 0) {
+          <div class="alert alert-danger mt-3">
+            @for (erro of erro(); track $index) {
+              <div>{{ erro }}</div>
+            }
+          </div>
+        }
+      <!-- d-flex + justify-content-end = botão alinhado à direita
+           mt-4 = espaço acima, separando dos campos -->
+      <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn btn-primary"
+        (click)="salvarPaciente()"
+        [disabled]="salvando()">
+          <i class="bi bi-check-lg"></i> Salvar Paciente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

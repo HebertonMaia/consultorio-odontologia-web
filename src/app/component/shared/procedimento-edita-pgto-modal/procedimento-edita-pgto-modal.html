@@ -1,0 +1,58 @@
+<div class="modal d-block" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-cash-coin"></i> Acertar Pagamento</h5>
+        <button type="button" class="btn-close" (click)="fechar.emit()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Forma de pagamento</label>
+            <select class="form-select" [(ngModel)]="pagamentoSelecionado" (change)="verificaInfoPgto()">
+              <option value="">Selecione</option>
+              @for (p of listPagamentoOrderBy(); track p.pagamentoId) {
+                <option [value]="p.pagamentoId">{{ p.descricao }}</option>
+              }
+            </select>
+          </div>
+
+          @if(this.pgtoComValor()) {
+            <div class="col-md-6">
+              <label class="form-label">Valor <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" class="form-control"
+                  [value]="valorFormatado()"
+                  (input)="aoDigitarValor($event)"
+                  [(ngModel)]="valorPgtoModal">
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+
+      @if (carregando()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+        } @else if (erro()) {
+        <div class="alert alert-danger">{{ erro() }}</div>
+        }
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="fechar.emit()">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-success" (click)="salvaEdicaoPgtoModal()">
+          <i class="bi bi-check-lg"></i> Salvar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>

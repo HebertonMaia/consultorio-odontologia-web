@@ -1,0 +1,177 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-person-badge"></i> Agenda de Consultas</h2>
+
+    <button type="button" class="btn btn-secondary" [routerLink]="['/agenda']">
+      Voltar
+    </button>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <!-- DENTISTA -->
+        <div class="col-md-6">
+          <label for="filtroDentistaId" class="form-label">Dentista <span class="text-danger">*</span></label>
+          <select id="filtroDentistaId" class="form-select" [(ngModel)]="filtroDentistaId">
+            @for (dentista of dentistaListaOrderBy(); track dentista.dentistaId) {
+              @if(dentista.ativo){
+              <option [value]="dentista.dentistaId">
+                <div>
+                  {{ dentista.nome }}
+                </div>
+              </option>
+              }
+            }
+          </select>
+          <div class="invalid-feedback">Informe o dentista</div>
+        </div>
+        <!-- DATA -->
+        <div class="col-md-3">
+          <label for="filtroDataConsulta" class="form-label">Data Consulta <span class="text-danger">*</span></label>
+          <input type="date" id="filtroDataConsulta" class="form-control" [(ngModel)]="filtroDataConsulta">
+          <div class="invalid-feedback">Informe a data da consulta</div>
+        </div>
+        <!-- BOTÃO DE PESQUISAR -->
+        <div class="col-md-3">
+          <button type="button" class="btn btn-success" (click)="pesquisarConsultasDentista()"
+            [disabled]="carregando()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if(mostrarDivHorarioConsulta()) {
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <span class="text-info">
+            <i class="bi bi-info-circle"></i>
+            Intervalo mínimo entre as consultas: {{ intervaloMinimoentreConsulta_Min() }} min
+          </span>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center flex-wrap gap-2">
+        <span><i class="bi bi-clock-history"></i> Horários já agendados:</span>
+
+        @for (hora of horariosAgendadosDentista(); track $index) {
+        <span class="badge text-bg-secondary fs-6">{{ hora }}</span>
+        } @empty {
+        <span class="badge text-bg-success">
+          <i class="bi bi-check-lg"></i> Dia livre
+        </span>
+        }
+      </div>
+      <br/>
+      <div class="row g-3 align-items-center">
+        <!-- HORÁRIO AGENDAMENTO -->
+        <div class="col-md-12">
+          <div class="d-flex align-items-center gap-2">
+            <label for="horarioConsulta" class="form-label mb-0">Agendando consulta para o dia
+              <span class="badge text-bg-info fs-6 align-middle" style="color: white !important">{{dataEscolhida() | date:'dd/MM/yyyy':'UTC'}}</span></label> às
+              <input type="time" id="horarioConsulta" class="form-control" [(ngModel)]="horarioConsulta"
+                style="width:auto" step="300">
+              <div class="invalid-feedback">Informe o horário consulta</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <div class="border rounded p-3 bg-body-tertiary mb-3">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-person-circle fs-4"></i>
+
+          @if (pacienteEscolhido(); as paciente) {
+            <span class="fw-bold fs-5">{{ paciente.nome }}</span>
+          } @else {
+            <span class="fw-bold fs-5"></span>
+          }
+        </div>
+
+        <div class="row text-muted small g-2">
+          @if (pacienteEscolhido(); as paciente) {
+            <div class="col-auto">
+              <i class="bi bi-card-text"></i> {{ (paciente.cpf === null || paciente.cpf === '' ? '' : paciente.cpf |
+              mask:'000.000.000-00') }}
+            </div>
+            <div class="col-auto">
+              <i class="bi bi-telephone"></i> {{ paciente.telefones.join(', ') }}
+            </div>
+            @if (paciente.email) {
+              <div class="col-auto">
+                <i class="bi bi-envelope"></i> {{ paciente.email }}
+              </div>
+            }
+            @if(listPacienteConvenio() !== null && listPacienteConvenio()!.length > 0) {
+              <div class="col-auto">
+                <i class="bi bi-building"></i>
+                @for(convenio of listPacienteConvenio(); track convenio.pacienteConvenioId) {
+                   {{ convenio.convenioNome }} - nº {{ convenio.numeroCarteirinha }}
+                   @if (!$last) { / }
+                }
+              </div>
+            }
+          }
+
+          @if (!pacienteJaEscolhido()) {
+          <div class="text-center py-3">
+            <button type="button" class="btn btn-primary" (click)="abrirModalEscolherPaciente()">
+              <i class="bi bi-person-plus"></i> Selecionar Paciente
+            </button>
+          </div>
+          } @else {
+            <div class="border rounded p-3 bg-body-tertiary mb-3">
+              <div class="d-flex justify-content-between align-items-end">
+                <div>
+                  <!-- aqui fica o nome + CPF + telefone + e-mail que você já tem -->
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="abrirModalEscolherPaciente()">
+                  <i class="bi bi-pencil-square"></i> Alterar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if(exibirModalPaciente()) {
+        <app-paciente-escolher-modal (pacienteSelecionado)="aoSelecionarPaciente($event)"
+          (fechar)="fecharModalPaciente()" />
+      }
+
+      <div class="mt-3">
+        <label for="observacao" class="form-label">Observações</label>
+        <textarea id="observacao" class="form-control" rows="3"
+          placeholder="Anote aqui alguma observação sobre a consulta (opcional)"
+          [(ngModel)]="observacaoAdm" maxlength="1000"></textarea>
+        <div class="form-text text-end">{{ observacaoAdm().length }}/1000</div>
+      </div>
+
+      @if (pacienteEscolhido(); as paciente) {
+        <button type="button" class="btn btn-sm btn-success" (click)="agendarConsulta()">
+          <i class="bi bi-save"></i> Confirmar Agendamento
+        </button>
+      }
+    </div>
+    }
+  </div>
+
+  <!-- No template, lê-se o signal CHAMANDO como função: carregando() -->
+  @if (carregando()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  } @else if (erro() && erro()!.length > 0) {
+    <div #erroBox class="alert alert-danger mt-3">
+        @for (e of erro(); track e) {
+          <div>{{ e }}</div>
+        }
+      </div>
+    }
+
+</div>

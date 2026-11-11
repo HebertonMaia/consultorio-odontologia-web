@@ -1,0 +1,128 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-building"></i> {{ (edicaoTela() ? "Editar Convênio" : "Novo Convênio") }}</h2>
+    <button type="button" class="btn btn-outline-secondary" routerLink="/convenios">
+      Voltar
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+
+      <!-- row = linha do grid; as colunas dentro dela dividem o espaço.
+           g-3 = espaço entre os campos -->
+      <div class="row g-3">
+
+        <!-- col-md-6 = ocupa metade da linha em tela grande;
+             no celular cada campo ocupa a linha inteira sozinho -->
+        <div class="col-md-6">
+          <!-- for="nome" liga o label ao input de id="nome":
+               clicando no texto, o cursor vai para o campo -->
+          <label for="razaoSocial" class="form-label">Razão Social <span class="text-danger">*</span></label>
+          <input type="text" id="razaoSocial" class="form-control" required [(ngModel)]="razaoSocial"
+            #campoRazaoSocial="ngModel" [class.is-invalid]="campoRazaoSocial.invalid && campoRazaoSocial.touched">
+          <div class="invalid-feedback">Informe uma razão social válida</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="nomeFantasia" class="form-label">Nome Fantasia <span class="text-danger">*</span></label>
+          <input type="text" id="nomeFantasia" class="form-control" required [(ngModel)]="nomeFantasia"
+            #campoNomeFantasia="ngModel" [class.is-invalid]="campoNomeFantasia.invalid && campoNomeFantasia.touched">
+          <div class="invalid-feedback">Informe um nome fantasia válido</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="cro" class="form-label">Registro ANS <span class="text-danger">*</span></label>
+          <!-- 0 = dígito obrigatório; 9 = dígito opcional → aceita de 1 a 6 números -->
+          <input type="text" id="registroANS" class="form-control" [(ngModel)]="registroANS" required
+            #campoRegistroANS="ngModel" [class.is-invalid]="campoRegistroANS.invalid && campoRegistroANS.touched">
+          <div class="invalid-feedback">Informe o registro da ANS</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="cnpj" class="form-label">Cnpj <span class="text-danger">*</span></label>
+          <!-- 0 = dígito obrigatório; 9 = dígito opcional → aceita de 1 a 6 números -->
+          <input type="text" id="cnpj" class="form-control"
+            mask="AA.AAA.AAA/AAAA-00" [dropSpecialCharacters]="false" style="text-transform: uppercase"
+            [(ngModel)]="cnpj" required #campoCnpj="ngModel"
+            [class.is-invalid]="campoCnpj.invalid && campoCnpj.touched">
+          <div class="invalid-feedback">Informe um CNPJ válido</div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" class="form-select" [(ngModel)]="status">
+            <option value="1">ATIVO</option>
+            <option value="0">INATIVO</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+
+          <app-telefone-lista [(telefoneListaCpm)]="telefoneLista" />
+
+        </div>
+
+        <div class="col-md-3">
+          <label for="email" class="form-label">E-mail</label>
+          <div class="input-group">
+            <input type="text" id="email" class="form-control" [(ngModel)]="email">
+            <button class="btn btn-success btn-sm" type="button" (click)="incluiEmailLista()">
+              <i class="bi bi-plus-lg"></i></button>
+          </div>
+
+          <!-- A lista aparece aqui embaixo -->
+          <div class="mt-2">
+            @for (email of emailLista(); track $index) {
+            <span class="badge text-bg-secondary fs-6 me-1 mb-1">
+              {{ email }}
+              <button type="button" class="btn-close btn-close-white ms-1"
+                (click)="removerEmail(email)"></button>
+            </span>
+            } @empty {
+            <small class="text-muted">Nenhum e-mail adicionado</small>
+            }
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="site" class="form-label">Site</label>
+          <div class="input-group">
+            <input type="text" id="site" class="form-control" [(ngModel)]="site">
+            <button class="btn btn-success btn-sm" type="button" (click)="incluiSiteLista()">
+              <i class="bi bi-plus-lg"></i>
+            </button>
+          </div>
+
+          <!-- A lista aparece aqui embaixo -->
+          <div class="mt-2">
+            @for (site of siteLista(); track $index) {
+            <span class="badge text-bg-secondary fs-6 me-1 mb-1">
+              {{ site }}
+              <button type="button" class="btn-close btn-close-white ms-1" (click)="removerSite(site)"></button>
+            </span>
+            } @empty {
+            <small class="text-muted">Nenhum site adicionado</small>
+            }
+          </div>
+        </div>
+
+      </div>
+      @if(erro().length > 0) {
+      <div class="alert alert-danger mt-3">
+        @for (erro of erro(); track $index) {
+        <div>{{ erro }}</div>
+        }
+      </div>
+      }
+      <!-- d-flex + justify-content-end = botão alinhado à direita
+           mt-4 = espaço acima, separando dos campos -->
+      <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn btn-primary" (click)="salvarConvenio()" [disabled]="salvando()">
+          <i class="bi bi-check-lg"></i> Salvar Convênio
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

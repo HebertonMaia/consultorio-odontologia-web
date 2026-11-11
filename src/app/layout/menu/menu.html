@@ -1,0 +1,120 @@
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+
+    <a class="navbar-brand" routerLink="/">
+      <!-- LOGO: sorriso + dente (SVG). A cor vem do texto (currentColor); o tamanho, da classe logo-consultorio -->
+      <svg class="logo-consultorio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3.6 14.2c1.9 4.2 5 6.3 8.4 6.3s6.5-2.1 8.4-6.3" stroke-width="1.9"></path>
+        <path transform="translate(6.6 1.4) scale(0.45)" stroke-width="3.8" d="M12 5.6C10.6 4.2 9.2 3.6 7.6 3.6C5 3.6 3.4 5.6 3.4 8.2C3.4 10.4 4.6 12 5.2 14.2C5.8 16.4 6 19.6 7.4 20.6C8.7 21.5 9.4 20 9.8 18.2C10.1 16.7 10.6 15 12 15C13.4 15 13.9 16.7 14.2 18.2C14.6 20 15.3 21.5 16.6 20.6C18 19.6 18.2 16.4 18.8 14.2C19.4 12 20.6 10.4 20.6 8.2C20.6 5.6 19 3.6 16.4 3.6C14.8 3.6 13.4 4.2 12 5.6Z"></path>
+      </svg> Consultório
+    </a>
+
+    <!-- Botão hambúrguer (só aparece no celular).
+         data-bs-target aponta para o id da área que abre e fecha. -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+      aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menuPrincipal">
+      <ul class="navbar-nav">
+
+        <!-- Link simples -->
+        <li class="nav-item">
+          <!-- routerLink no lugar de href: troca a tela SEM recarregar a página.
+               Com href, o navegador recarregaria o site inteiro (erro clássico). -->
+          <a class="nav-link" routerLink="/agenda" routerLinkActive="active">
+            <i class="bi bi-calendar3"></i> Agenda
+          </a>
+        </li>
+
+        @if(session.perfilNome() !== 'Dentista') {
+
+          <li class="nav-item dropdown">
+            <!-- data-bs-toggle="dropdown": o JS do Bootstrap abre/fecha a lista abaixo -->
+            <button class="nav-link" type="button" [routerLink]="['/pacientes']">
+              <i class="bi bi-people"></i> Pacientes
+            </button>
+            <!-- <ul class="dropdown-menu">
+              <li><a class="dropdown-item" routerLink="/pacientes/novo">Cadastrar</a></li>
+              <li><a class="dropdown-item" routerLink="/pacientes">Alterar Dados</a></li>
+            </ul> -->
+          </li>
+
+          <li class="nav-item dropdown">
+            <button class="nav-link" type="button" [routerLink]="['/dentistas']">
+              <i class="bi bi-person-badge"></i> Dentistas
+            </button>
+          </li>
+
+          <li class="nav-item dropdown">
+            <button class="nav-link" type="button" [routerLink]="['/convenios']">
+              <i class="bi bi-building"></i> Convênios
+            </button>
+          </li>
+        }
+
+        @if(session.perfilNome() === 'Administrador' || session.perfilNome() === 'Administração Clínica') {
+
+          <li class="nav-item dropdown">
+            <button class="nav-link" type="button" [routerLink]="['/usuarios']">
+              <i class="bi bi-person-circle"></i> Usuarios
+            </button>
+          </li>
+        }
+      </ul>
+
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown position-relative">
+          @if (session.logado()) {
+
+          <button type="button" class="btn btn-link nav-link text-decoration-none d-flex align-items-center gap-2"
+            (click)="menuUsuarioAberto.set(!menuUsuarioAberto())">
+            <i class="bi bi-person-circle fs-3 text-secondary"></i>
+            <span class="d-flex flex-column align-items-start lh-1">
+              <span class="fw-semibold small">{{ nomeSobreNome(session.usuarioNome()!) }}</span>
+              <span class="{{ classPerfil(session.perfilNome()!) }}"
+                style="font-size: .7rem;">
+                {{ session.perfilNome() }}
+              </span>
+            </span>
+            <i class="bi bi-chevron-down small text-secondary"></i>
+          </button>
+
+          <!-- fundo invisível: clicar fora fecha -->
+          @if (menuUsuarioAberto()) {
+          <div class="position-fixed top-0 start-0 w-100 h-100" style="z-index: 1"
+            (click)="menuUsuarioAberto.set(false)"></div>
+          }
+
+          <!-- O MENU que o botão mostra/esconde -->
+          <ul class="dropdown-menu mt-2" [class.show]="menuUsuarioAberto()"
+            style="position: absolute; top: 100%; right: 0; left: auto;">
+            <li>
+              <button type="button" class="dropdown-item" (click)="exibeUsuarioModal.set(true)">
+                <i class="bi bi-person me-2"></i>Meus dados
+              </button>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <button type="button" class="dropdown-item text-danger" (click)="sair()">
+                <i class="bi bi-box-arrow-right me-2"></i>Sair
+              </button>
+            </li>
+          </ul>
+          }
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+@if(exibeUsuarioModal()) {
+  <app-usuario-editar-dados-modal
+    (fechar)="exibeUsuarioModal.set(false);menuUsuarioAberto.set(false)"
+    (salvar)="exibeUsuarioModal.set(false)"
+    [usuarioId]="session.usuarioId()!"
+  />
+}

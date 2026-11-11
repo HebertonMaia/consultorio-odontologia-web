@@ -1,0 +1,39 @@
+.navbar {
+  background-color: #171613;           // fundo do menu (mais escuro que a página)
+  border-bottom: 1px solid #3a3831;    // linha fina embaixo
+
+  --bs-navbar-color: #a29d8e;          // cor dos links
+  --bs-navbar-hover-color: #efece0;    // cor ao passar o mouse
+  --bs-navbar-active-color: #b4d669;   // cor do link da página atual
+  --bs-navbar-brand-color: #b4d669;    // cor do nome "Consultório"
+  --bs-navbar-brand-hover-color: #cfe595;
+  --bs-navbar-nav-link-padding-x: 0.75rem;  // espaço dos lados de cada link
+}
+
+// Espaço entre os links
+.navbar-nav {
+  gap: 4px;
+}
+
+// Cantos arredondados nos links
+.nav-link {
+  border-radius: 8px;
+}
+
+// Fundo ao passar o mouse
+.nav-link:hover {
+  background-color: #22211d;
+}
+
+// A "pílula" da página atual e do submenu aberto:
+// verde-oliva translúcido, mais claro no meio, como nos modelos
+.nav-link.active,
+.nav-link.show {
+  background-color: rgba(180, 214, 105, 0.15);
+}
+
+// Caixa do submenu (Cadastrar / Alterar Dados)
+.dropdown-menu {
+  --bs-dropdown-bg: #272621;               // fundo da caixa
+  --bs-dropdown-link-active-bg: #5f7f2e;   // cor no clique (no lugar do azul)
+}

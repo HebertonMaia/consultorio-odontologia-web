@@ -1,0 +1,23 @@
+<!-- confirma-modal.html -->
+<div class="modal d-block" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle-fill text-warning"></i> {{ titulo() }}
+        </h5>
+        <button type="button" class="btn-close" (click)="cancelar.emit()"></button>
+      </div>
+      <div class="modal-body">{{ mensagem() }}</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelar.emit()">
+          {{ textoCancelar() }}
+        </button>
+        <button type="button" [class]="classBtn()" (click)="confirmar.emit()">
+          {{ textoConfirmar() }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>

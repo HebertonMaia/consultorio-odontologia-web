@@ -1,0 +1,75 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-people"></i> Usuário</h2>
+
+    <button type="button" class="btn btn-primary" (click)="abreModalUsuario(0)">
+      <i class="bi bi-plus-lg"></i> Novo Usuário
+    </button>
+  </div>
+
+  <!-- No template, lê-se o signal CHAMANDO como função: carregando() -->
+  @if (carregando()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  } @else if (erro() && erro() !== null && erro() !== '') {
+  <div class="alert alert-danger">{{ erro() }}</div>
+  } @else {
+  <!-- card = caixa com fundo um pouco mais claro que a página -->
+  <div class="card">
+    <div class="card-body">
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Login</th>
+              <th>Perfil</th>
+              <th class="text-center">Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (usuario of listUsuarioOrderBy(); track usuario.usuarioId) {
+              <tr>
+                <td>{{ usuario.usuarioId }}</td>
+                <td>{{ usuario.nome }}</td>
+                <td>{{ usuario.login }}</td>
+                <td>{{ usuario.perfil.descricao }}</td>
+                <td class="text-center">
+                  @if (usuario.ativo) {
+                    <span class="badge text-bg-success fs-6">Ativo</span>
+                  } @else {
+                    <span class="badge text-bg-danger fs-6">Inativo</span>
+                  }
+                </td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-warning"
+                    (click)="abreModalUsuario(usuario.usuarioId)">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center text-muted">Nenhum usuario cadastrado.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  }
+
+  @if(exibeModalUsuario()){
+    <app-usuario-editar-dados-modal
+      (fechar)="exibeModalUsuario.set(false)"
+      (salvar)="carregaUsuarios();"
+      [usuarioId]="usuarioIdModal()"
+    />
+  }
+</div>

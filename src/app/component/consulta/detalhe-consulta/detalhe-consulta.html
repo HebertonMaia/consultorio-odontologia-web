@@ -1,0 +1,334 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-person-badge"></i> Detalhe Consultas</h2>
+
+    <button type="button" class="btn btn-secondary" [routerLink]="['/agenda']">
+      Voltar
+    </button>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <!-- DADOS CONSULTA -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-calendar2-check"></i>
+          <span class="fw-semibold">Dados da Consulta</span> <span
+            class="badge {{ corStatus(consulta()!.statusConsultaId) }}">
+            {{ statusConsulta()!.descricao }}
+          </span>
+          @if(session.perfilNome() !== 'Dentista') {
+          <button class="btn btn-sm btn-outline-secondary"
+            [disabled]="(consultaFinalizada() || !procedimentosAcertadosPgto())"
+            [title]="(!procedimentosAcertadosPgto() ? 'Para alterar o status da consulta, acerte seu pagamento' : 'Alterar status')"
+            (click)="abreModalAlteraStatus()">
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          }
+        </div>
+        <div class="card-body">
+          <div class="text-muted small">Data</div>
+          <div class="fw-bold fs-5">{{ consulta()?.dataConsulta | date:'dd/MM/yyyy' }}</div>
+          <div class="horario mb-3"><i class="bi bi-clock"></i> {{ consulta()?.dataConsulta | date:'HH:mm' }}</div>
+
+          <div class="text-muted small mb-3">
+            <i class="bi bi-person"></i> {{ nomeResumido(usuario()!.nome) }} em {{ consulta()?.dataCadastro|
+            date:'dd/MM/yyyy HH:mm' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DENTISTA -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-person-badge"></i>
+          <span class="fw-semibold">Dentista</span>
+        </div>
+        <div class="card-body">
+          <div class="fw-bold fs-5">{{ dentista()?.nome }}</div>
+          <div class="text-muted small mb-2">CRO {{ dentista()?.cro }}</div>
+          <div class="small"><i class="bi bi-telephone"></i>
+            {{ dentista()?.telefones?.join(', ') }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PACIENTE -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-person"></i>
+          <span class="fw-semibold">Paciente</span>
+        </div>
+        <div class="card-body">
+          <div class="fw-bold fs-5">{{ paciente()?.nome }}</div>
+          <div class="text-muted small mb-2"><i class="bi bi-person-vcard"></i> {{ (paciente()?.cpf === null ||
+            paciente()?.cpf === '' ? '' : paciente()!.cpf | mask:'000.000.000-00') }}</div>
+          <div class="small"><i class="bi bi-telephone"></i>
+            {{ paciente()?.telefones?.join(', ') }}
+          </div>
+          <div class="text-muted small">Convênios</div>
+          @if(listPacienteConvenio() !== null && listPacienteConvenio()!.length > 0) {
+          <i class="bi bi-building"></i>
+          @for (convenio of listPacienteConvenio(); track convenio.convenioId) {
+          {{ convenio.convenioNome }} - nº {{ convenio.numeroCarteirinha }}
+          @if(!$last) { , }
+          }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ALTERAÇÃO DE STATUS -->
+  @if(abreAlteracaoStatusModal()){
+  <app-altera-status-consulta-modal (fechar)="abreAlteracaoStatusModal.set(false)"
+    (salvar)="recebeAlteracaoStatusModal($event)" [dentistaIdModal]="this.consulta()!.dentistaId"
+    [statusConsultaAtualModal]="consulta()!.statusConsultaId" [erroDevolvido_msg]="devolveErroAoFilho_Msg()"
+    [erroDevolvido_statusSelecionado]="devolveErroAoFilho_statusSelcionado()"
+    [erroDevolvido_dataSelecionada]="devolveErroAoFilho_dataSelcionada()"
+    [erroDevolvido_horarioSelecionado]="devolveErroAoFilho_horarioSelcionado()" />
+  }
+
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center gap-2">
+      <i class="bi bi-clipboard2-plus"></i>
+      <span class="fw-semibold">Procedimentos (Dentista)</span>
+    </div>
+    <div class="card-body">
+
+      <!-- LINHA DE INCLUSÃO -->
+       @if(session.perfilNome() !== 'Recepcionista') {
+
+         <div class="row g-2 align-items-end mb-3">
+           <div class="col-md-5">
+             <label class="form-label">Procedimento</label>
+            <select class="form-select" [(ngModel)]="procedimentoSelecionado">
+               <option value="">Selecione...</option>
+                @for (p of listProcedimentoOrderBy(); track p.procedimentoId) {
+
+                  @if(listConsultaProcedimentoSalvo().length === 0 || !listConsultaProcedimentoSalvo().some(a=>
+                  a.procedimentoId === p.procedimentoId)) {
+                  <option [value]="p.procedimentoId">{{ p.descricao }}</option>
+                  }
+                }
+            </select>
+            </div>
+            <div class="col-md-1">
+              <button type="button" class="btn btn-outline-success" (click)="incluirProcedimento()">
+                <i class="bi bi-plus-lg me-1"></i>
+              </button>
+            </div>
+          </div>
+      }
+
+      <!-- MODAL DE EDIÇÃO DOS VALORES -->
+      @if(exibeModalEditValores()) {
+      <app-procedimento-edita-pgto-modal
+        [consultaProcedimentoIdSelecionadoFilho]="consultaProcedimentoIdSelecionadoPai()"
+        (fechar)="exibeModalEditValores.set(false)" (salvoRecarregarDados)="recarregaProcedimentos_E_Log()" />
+      }
+
+      @if (exibeConfirmaInativar()) {
+      <app-confirma-modal titulo="Confirmar remoção" mensagem="Tem certeza que deseja remover este procedimento?"
+        classBtn="btn btn-danger" textoConfirmar="Remover" (confirmar)="confirmarInativacao()"
+        (cancelar)="exibeConfirmaInativar.set(false)" />
+      }
+
+      <!-- LISTA PROCEDIMENTOS -->
+      <table class="table table-sm table-hover align-middle mb-0">
+        <thead>
+          <tr class="text-muted small">
+            <th>Procedimento</th>
+            <th>Pagamento</th>
+            <th class="text-center">Valor Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (proc of listConsultaProcedimentoSalvo(); track $index) {
+          <tr>
+            <td>{{ proc.procedimentoDescricao }}</td>
+            <td>
+              @if(proc.pagamentoDescricao) {
+              <span class="badge text-bg-success">
+                <i class="bi bi-check-circle"></i> {{ proc.pagamentoDescricao }}
+              </span>
+              } @else {
+              <span class="badge text-bg-warning">
+                <i class="bi bi-hourglass-split"></i> Pendente
+              </span>
+              }
+            </td>
+            <td class="text-center">{{ (proc.valor > 0 ? (proc.valor | currency:'BRL') : '--') }}</td>
+            <td class="text-end">
+              <div class="d-flex gap-2 justify-content-end">
+                @if(session.perfilNome() !== 'Dentista') {
+                <button type="button" class="btn btn-sm btn-outline-primary" title="Acertar pagamento"
+                  (click)="alterarValorFinanceiro(proc.consultaProcedimentoId)" [disabled]="consultaFinalizada()">
+                  <i class="bi bi-cash-coin"></i>
+                </button>
+                }
+                @if(session.perfilNome() !== 'Recepcionista') {
+                  <button type="button" class="btn btn-sm btn-outline-danger" title="Remover procedimento"
+                    (click)="pedirConfirmacaoInativar(proc.consultaProcedimentoId)" [disabled]="consultaFinalizada()">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="4" class="text-center text-muted py-3">
+              <i class="bi bi-inbox"></i> Nenhum procedimento adicionado
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+
+    </div>
+    <!-- OBSERVAÇÃO DENTISTA -->
+    <div class="card-body">
+      <textarea id="observacao" class="form-control" rows="3"
+        placeholder="Anote aqui alguma observação sobre a consulta (opcional)" [(ngModel)]="obsDentista"></textarea>
+      @if(session.perfilNome() !== 'Recepcionista') {
+      <div class="d-flex justify-content-end mt-2">
+        <button type="button" class="btn btn-primary" (click)="incluirObsDentista()">
+          <i class="bi bi-save me-1"></i> Salvar observação
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+
+
+  <!-- LOG CONSULTA -->
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center justify-content-between gap-2" style="cursor:pointer"
+      (click)="logsConsultaAberto.set(!logsConsultaAberto())">
+      <span><i class="bi bi-clock-history"></i> Log Consulta</span>
+      <i class="bi" [class.bi-chevron-down]="!logsConsultaAberto()" [class.bi-chevron-up]="logsConsultaAberto()"></i>
+    </div>
+    @if (logsConsultaAberto()) {
+    <div class="card-body">
+      <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small">
+              <th class="text-center">Data</th>
+              <th>Usuário</th>
+              <th>Perfil</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of listConsultaLogOrderBy(); track log.logId) {
+            <tr>
+              <td class="text-center">
+                <div class="fw-bold">{{ log.dataCadastro | date:'dd/MM/yyyy' }}</div>
+                <div class="small horario">
+                  <i class="bi bi-clock"></i> {{ log.dataCadastro | date:'HH:mm' }}
+                </div>
+              </td>
+              <td>{{ nomeResumido(log.usuarioNome) }}</td>
+              <td> <span [class]="ClassPerfil(log.usuarioPerfil)">{{ log.usuarioPerfil }}</span></td>
+              <td [innerHTML]="log.descricao"></td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="5" class="text-center text-muted py-3">
+                <i class="bi bi-inbox"></i> Sem registro de log
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- LOG PROCEDIMENTO -->
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center justify-content-between gap-2" style="cursor:pointer"
+      (click)="logsProcedimentoAberto.set(!logsProcedimentoAberto())">
+      <span><i class="bi bi-clock-history"></i> Log Procedimentos</span>
+      <i class="bi" [class.bi-chevron-down]="!logsProcedimentoAberto()"
+        [class.bi-chevron-up]="logsProcedimentoAberto()"></i>
+    </div>
+    @if (logsProcedimentoAberto()) {
+    <div class="card-body">
+      <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small">
+              <th class="text-center">Data</th>
+              <th>Usuário</th>
+              <th>Perfil</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of listConsultaProcedimentoLogOrderBy(); track log.logId) {
+            <tr>
+              <td class="text-center">
+                <div class="fw-bold">{{ log.dataCadastro | date:'dd/MM/yyyy' }}</div>
+                <div class="small horario">
+                  <i class="bi bi-clock"></i> {{ log.dataCadastro | date:'HH:mm' }}
+                </div>
+              </td>
+              <td>{{ nomeResumido(log.usuarioNome) }}</td>
+              <td> <span [class]="ClassPerfil(log.usuarioPerfil)">{{ log.usuarioPerfil }}</span></td>
+              <td [innerHTML]="log.descricao"></td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="5" class="text-center text-muted py-3">
+                <i class="bi bi-inbox"></i> Sem registro de log
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- No template, lê-se o signal CHAMANDO como função: carregando() -->
+  @if (carregando()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  } @else if (erro() && erro()!.length > 0) {
+  <div #erroBox class="alert alert-danger mt-3">
+    @for (e of erro(); track e) {
+    <div>{{ e }}</div>
+    }
+  </div>
+  }
+
+  <!-- CONFIRMA FINALIZAÇÃO CONSULTA -->
+  @if (exibeConfirmaFinalizarConsulta()) {
+    <app-confirma-modal titulo="Confirmar Finalização Consulta" mensagem="Tem certeza que deseja finalizar esta consulta?"
+      classBtn="btn btn-success" textoConfirmar="Sim" (confirmar)="modalConfirmarFinalizacaoConsulta()"
+      (cancelar)="exibeConfirmaFinalizarConsulta.set(false)" />
+  }
+
+  @if(session.perfilNome() !== 'Dentista') {
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button"
+        [class]="(procedimentosAcertadosPgto() ? 'btn btn-success btn-lg' : 'btn btn-secondary btn-lg')"
+        [disabled]="!procedimentosAcertadosPgto()" (click)="finalizarConsulta()"
+        [title]="procedimentosAcertadosPgto() ? '' : 'Acerte o pagamento de todos os procedimentos primeiro'">
+        <i class="bi bi-check2-circle"></i> Finalizar Consulta
+      </button>
+    </div>
+  }
+</div>

@@ -1,0 +1,184 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-people"></i> Consulta de Agendamentos</h2>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <!-- VISÃO -->
+      <div class="col-md-12">
+        <label for="filtroVisao" class="form-label">Visualização da agenda:</label>
+        <select id="filtroVisao" class="form-select" [(ngModel)]="filtroVisao" [disabled]="carregando()">
+          <option value="1">Por Dentista</option>
+          <option value="2">Por Paciente</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end mb-3">
+        <!-- FORMULÁRIO -->
+        <div class="row g-3 align-items-end">
+          @if(filtroVisao() === '1') { <!-- POR DENTISTA -->
+          <!-- NOME DENTISTA -->
+          <div class="col-md-3">
+            <label for="filtroDentistaNome" class="form-label">Nome Dentista</label>
+            <input type="text" id="filtroDentistaNome" class="form-control" [(ngModel)]="filtroDentistaNome">
+          </div>
+          <div class="col-md-3">
+            <label for="filtroDentistaEspecialidade" class="form-label">Especialidade Dentista</label>
+            <input type="text" id="filtroDentistaEspecialidade" class="form-control"
+              [(ngModel)]="filtroDentistaEspecialidade">
+          </div>
+          } @else { <!-- POR PACIENTE -->
+          <!-- NOME DENTISTA -->
+          <div class="col-md-3">
+            <label for="filtroPacienteNome" class="form-label">Nome Paciente</label>
+            <input type="text" id="filtroPacienteNome" class="form-control" [(ngModel)]="filtroPacienteNome">
+          </div>
+          <!-- CPF -->
+          <div class="col-md-3">
+            <label for="filtroPacienteCpf" class="form-label">CPF</label>
+            <input type="text" id="filtroPacienteCpf" class="form-control" mask="000.000.000-00"
+              [(ngModel)]="filtroPacienteCpf">
+          </div>
+          }
+          <!-- BOTÃO -->
+          <div class="col-md-2">
+            <button type="button" class="btn btn-success w-100" (click)="pesquisar(filtroVisao())"
+              [disabled]="carregando()">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- No template, lê-se o signal CHAMANDO como função: carregando() -->
+      @if (carregando()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+      } @else if (erro()) {
+      <div class="alert alert-danger">{{ erro() }}</div>
+      } @else {
+      <!-- card = caixa com fundo um pouco mais claro que a página -->
+      <div class="card">
+        <div class="card-body">
+
+          <div class="table-responsive">
+            @if(filtroVisao() === '1') {
+            <table class="table table-striped table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nome Dentista</th>
+                  <th class="text-center">CRO</th>
+                  <th class="text-center">Telefones</th>
+                  <th class="text-center">Especialidades</th>
+                  <th class="text-center">Próximas Consultas</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- @for repete o bloco para cada paciente.
+               track paciente.id: diz ao Angular como identificar cada linha,
+               assim ele redesenha só o que mudou (é obrigatório). -->
+                @for (dentista of dentistaLista(); track dentista.dentista_id) {
+                <tr>
+                  <td>{{ dentista.dentista_id }}</td>
+                  <td>{{ dentista.nome }}</td>
+                  <td class="text-center" style="font-size: 11px;">{{ dentista.cro }}</td>
+                  <td class="text-start" style="font-size: 11px;">
+                    @for(telefone of dentista.telefones.split('#'); track $index){
+                    {{ telefone }}<br />
+                    }
+
+                  </td>
+                  <td class="text-start" style="font-size: 11px;">
+                    @for(especialidade of dentista.especialidades.split('#'); track $index) {
+                    @if(especialidade !== '') {
+                    <i class="bi bi-star-fill" style="color:orange;"></i>&nbsp;
+                    {{ especialidade }}<br />
+                    }
+                    }
+
+                  </td>
+                  <td class="text-start">
+                    @for(data of dentista.datasConsulta.split('#'); track $index) {
+                    <label>{{ data }}</label>
+                    }
+
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-warning"
+                      title="Detalhar/Agendar consulta com este dentista"
+                      [routerLink]="['/pacientes', dentista.dentista_id, 'editar']">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </td>
+                </tr>
+                } @empty {
+                <!-- @empty aparece quando a lista vem vazia -->
+                <tr>
+                  <td colspan="7" class="text-center text-muted">Nenhum dentista retornado</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+            } @else {
+            <table class="table table-striped table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nome Paciente</th>
+                  <th>Data Consulta</th>
+                  <th class="text-center">Telefones</th>
+                  <th class="text-center">Status Consulta</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- @for repete o bloco para cada paciente.
+               track paciente.id: diz ao Angular como identificar cada linha,
+               assim ele redesenha só o que mudou (é obrigatório). -->
+                @for (dentista of dentistaLista(); track dentista.dentista_id) {
+                <tr>
+                  <td>{{ dentista.dentista_id }}</td>
+                  <td>{{ dentista.nome }}</td>
+                  <td class="text-center">{{ dentista.cro }}</td>
+                  <td class="text-center">{{ dentista.telefones.replace('#',separador) }}</td>
+                  <td class="text-center">{{ dentista.especialidades.replace('#',separador) }}</td>
+                  <td class="text-center">
+
+                    {{ dentista.especialidades.replace('#',separador) }}
+
+                    @if(dentista.datasConsulta.split('#').length > 0 ) { " ..."}
+
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-warning"
+                      title="Detalhar/Agendar consulta com este dentista"
+                      [routerLink]="['/pacientes', dentista.dentista_id, 'editar']">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </td>
+                </tr>
+                } @empty {
+                <!-- @empty aparece quando a lista vem vazia -->
+                <tr>
+                  <td colspan="6" class="text-center text-muted">Nenhum paciente retornado</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+            }
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>

@@ -1,0 +1,19 @@
+<label for="telefone" class="form-label">Telefone</label>
+<div class="input-group">
+  <input type="text" id="telefone" class="form-control" mask="(00) 0000-0000||(00) 00000-0000"
+    [dropSpecialCharacters]="false" [(ngModel)]="telefone">
+  <button class="btn btn-success btn-sm" type="button" (click)="incluir()">
+    <i class="bi bi-plus-lg"></i>
+  </button>
+</div>
+
+<div class="mt-2">
+  @for (tel of telefoneListaCpm(); track $index) {
+  <span class="badge text-bg-secondary fs-6 me-1 mb-1">
+    {{ tel }}
+    <button type="button" class="btn-close btn-close-white ms-1" (click)="remover(tel)"></button>
+  </span>
+  } @empty {
+  <small class="text-muted">Nenhum telefone adicionado</small>
+  }
+</div>

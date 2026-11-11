@@ -1,0 +1,124 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-person-badge"></i> Dentistas</h2>
+
+    @if(sessionService.perfilNome() !== 'Recepcionista') {
+
+      <button type="button" class="btn btn-primary" [routerLink]="['/dentista/novo']">
+        <i class="bi bi-plus-lg"></i> Novo Dentista
+      </button>
+    }
+  </div>
+
+<div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <!-- NOME -->
+        <div class="col-md-4">
+          <label for="filtroNome" class="form-label">Nome</label>
+          <input type="text" id="filtroNome" class="form-control" [(ngModel)]="filtroNome">
+        </div>
+        <!-- ESPECIALIDADE -->
+        <div class="col-md-3">
+          <label for="filtroEspecialidade" class="form-label">Especialidade</label>
+          <input type="text" id="filtroEspecialidade" class="form-control" [(ngModel)]="filtroEspecialidade">
+        </div>
+        <!-- STATUS -->
+        <div class="col-md-3">
+          <label for="filtroStatus" class="form-label">Status</label>
+          <select id="filtroStatus" class="form-select" [(ngModel)]="filtroStatus">
+            <option value="1">ATIVO</option>
+            <option value="0">INATIVO</option>
+          </select>
+        </div>
+        <!-- BOTÃO -->
+        <div class="col-md-2">
+          <button type="button" class="btn btn-success w-100" (click)="carregarListaDentistas()" [disabled]="carregando()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No template, lê-se o signal CHAMANDO como função: carregando() -->
+  @if (carregando()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  } @else if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+  } @else {
+  <!-- card = caixa com fundo um pouco mais claro que a página -->
+  <div class="card">
+    <div class="card-body">
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th class="text-center">CRO</th>
+              <th class="text-center">Telefones</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Especialidades</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- @for repete o bloco para cada paciente.
+               track paciente.id: diz ao Angular como identificar cada linha,
+               assim ele redesenha só o que mudou (é obrigatório). -->
+            @for (dentista of dentistasListaOrderBy(); track dentista.dentistaId) {
+            <tr>
+              <td>{{ dentista.dentistaId }}</td>
+              <td>{{ dentista.nome }}</td>
+              <td class="text-center">{{ dentista.cro }}</td>
+              <td class="text-center">
+                <!-- @for dentro de @for: telefone é um array.
+                     $index = posição do item; útil quando o item não tem id. -->
+                @for (tel of dentista.telefones; track $index) {
+                <div>{{ tel }}</div>
+                }
+              </td>
+              <td class="text-center">
+                @if (dentista.ativo) {
+                  <span class="badge text-bg-success fs-6">Ativo</span>
+                } @else {
+                  <span class="badge text-bg-danger fs-6">Inativo</span>
+                }
+              </td>
+              <td class="text-center text-align-center">
+                @for (especialidade of dentista.especialidades; track especialidade.especialidadeId) {
+                  <div style="text-align: left;">
+                    @if(especialidade.ativo) {
+                      <i class="bi bi-star-fill" style="color:orange;"></i>&nbsp;
+                    } @else {
+                      <i class="bi bi-star-fill"></i>&nbsp;
+                    }
+                    {{ especialidade.descricao }}
+                  </div>
+                }
+              </td>
+              <td>
+                <button type="button" class="btn btn-sm btn-warning"
+                  [routerLink]="['/dentista', dentista.dentistaId, 'editar']">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </td>
+            </tr>
+            } @empty {
+            <!-- @empty aparece quando a lista vem vazia -->
+            <tr>
+              <td colspan="7" class="text-center text-muted">Nenhum dentista cadastrado.</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  }
+</div>

@@ -1,0 +1,22 @@
+// A tela inteira vira uma coluna com a altura da janela:
+// menu em cima, conteúdo embaixo.
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;   // no celular respeita a barra do navegador; se não existir, vale a linha de cima
+}
+
+// O menu não cresce nem encolhe: fica com a altura dele.
+app-menu {
+  flex: 0 0 auto;
+}
+
+// O conteúdo ocupa o que sobrou, e é ele que rola.
+main {
+  flex: 1 1 auto;
+  min-height: 0;     // sem isso a rolagem não aparece
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #5f7f2e transparent;
+}

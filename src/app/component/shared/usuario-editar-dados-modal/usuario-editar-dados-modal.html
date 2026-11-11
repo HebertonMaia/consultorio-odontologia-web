@@ -1,0 +1,95 @@
+<div class="modal d-block" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-person"></i> {{ (usuarioId() === 0 ? "Novo" : "Editar") }} Usuário</h5>
+        <button type="button" class="btn-close" (click)="fechar.emit()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label for="nomeUsuario" class="form-label">Nome <span class="text-danger">*</span></label>
+              <input type="text" id="nomeUsuario" class="form-control" required [(ngModel)]="nomeUsuario"
+                [disabled]="(session.perfilNome() === 'Recepcionista' || session.perfilNome() === 'Dentista' ? true : false)"
+                #campoNomeUsuario="ngModel" [class.is-invalid]="campoNomeUsuario.invalid && campoNomeUsuario.touched">
+              <div class="invalid-feedback">Informe o nome do usuário</div>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label for="loginUsuario" class="form-label">Login <span class="text-danger">*</span></label>
+              <input type="text" id="loginUsuario" class="form-control" required [(ngModel)]="loginUsuario"
+                 [disabled]="(session.perfilNome() === 'Recepcionista' || session.perfilNome() === 'Dentista' ? true : false)"
+                #campoLoginUsuario="ngModel" [class.is-invalid]="campoLoginUsuario.invalid && campoLoginUsuario.touched">
+              <div class="invalid-feedback">Informe o login</div>
+          </div>
+        </div>
+        <div class="row g-3 align-items-end">
+          <div class="col">
+            <label for="senhaUsuario" class="form-label">Senha <span class="text-danger">*</span></label>
+            <input type="password" id="senhaUsuario" class="form-control"
+                  required [(ngModel)]="senhaUsuario"
+                  [disabled]="desabilitaCampoSenha()"
+                  #campoSenhaUsuario="ngModel"
+                  [placeholder]="(editarSenhaUsuario() ? 'informe a nova senha' : '')"
+                  [class.is-invalid]="campoSenhaUsuario.invalid && campoSenhaUsuario.touched">
+          </div>
+
+          @if (usuarioId() !== 0) {
+            <div class="col-auto">
+              <div class="form-check mb-2">
+                <input type="checkbox" id="editarSenhaUsuario" class="form-check-input"
+                      [(ngModel)]="editarSenhaUsuario" (change)="habilitaDesabilitaCampoSenha($event)">
+                <label for="editarSenhaUsuario" class="form-check-label">Alterar senha?</label>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label for="perfilUsuario" class="form-label">Perfil <span class="text-danger">*</span></label>
+              <select id="perfilUsuario" class="form-select" [(ngModel)]="perfilUsuario"
+                required #campoPerfilUsuario="ngModel" [disabled]="(session.perfilNome() === 'Recepcionista' || session.perfilNome() === 'Dentista' ? true : false)"
+                [class.is-invalid]="campoPerfilUsuario.invalid && campoPerfilUsuario.touched">
+                <option value="">Selecione...</option>
+                @for (perfil of listPerfilOrderBy(); track perfil.perfilId) {
+                  <option [value]="perfil.perfilId">{{ perfil.descricao }}</option>
+                }
+              </select>
+              <div class="invalid-feedback">Informe o perfil</div>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label for="statusUsuario" class="form-label">Status</label>
+              <select id="statusUsuario" class="form-select" [(ngModel)]="statusUsuario"
+                [disabled]="(session.perfilNome() === 'Recepcionista' || session.perfilNome() === 'Dentista' ? true : false)">
+                <option value="1">Ativo</option>
+                <option value="0">Inativo</option>
+              </select>
+          </div>
+        </div>
+      </div>
+
+      @if (carregando()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+      } @else if (erro() && erro()!.length > 0) {
+        <div class="alert alert-danger">{{ erro() }}</div>
+      }
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="fechar.emit()">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-success" (click)="salvaUsuarioModal()">
+          <i class="bi bi-check-lg"></i> Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>

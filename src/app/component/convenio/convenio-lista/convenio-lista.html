@@ -1,0 +1,93 @@
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-building"></i> Convênio</h2>
+
+    @if(sessionService.perfilNome() !== 'Recepcionista') {
+
+      <button type="button" class="btn btn-primary" [routerLink]="['/convenio/novo']">
+        <i class="bi bi-plus-lg"></i> Novo Convênio
+      </button>
+    }
+  </div>
+
+  <!-- No template, lê-se o signal CHAMANDO como função: carregando() -->
+  @if (carregando()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  } @else if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+  } @else {
+  <!-- card = caixa com fundo um pouco mais claro que a página -->
+  <div class="card">
+    <div class="card-body">
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome Fantazia</th>
+              <th class="text-center">ANS</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Telefones</th>
+              <th class="text-center">Emails</th>
+              <th class="text-center">Site</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- @for repete o bloco para cada paciente.
+               track paciente.id: diz ao Angular como identificar cada linha,
+               assim ele redesenha só o que mudou (é obrigatório). -->
+            @for (convenio of convenioListaOrderBy(); track convenio.convenioId) {
+            <tr>
+              <td>{{ convenio.convenioId }}</td>
+              <td>{{ convenio.nomeFantasia }}</td>
+              <td class="text-center">{{ convenio.registroAns }}</td>
+              <td class="text-center">
+                @if (convenio.ativo) {
+                  <span class="badge text-bg-success fs-6">Ativo</span>
+                } @else {
+                  <span class="badge text-bg-danger fs-6">Inativo</span>
+                }
+              </td>
+              <td class="text-center">
+                @for (tel of convenio.telefones; track $index) {
+                <div>{{ tel }}</div>
+                }
+              </td>
+              <td class="text-center text-align-center">
+                @for (email of convenio.emails; track $index) {
+                  <div style="text-align: left;">{{ email }}</div>
+                }
+              </td>
+              <td class="text-center text-align-center">
+                @for (site of convenio.sites; track $index) {
+                  <div style="text-align: left;">{{ site }}</div>
+                }
+              </td>
+              <td>
+                @if(sessionService.perfilNome() !== 'Recepcionista') {
+
+                  <button type="button" class="btn btn-sm btn-warning"
+                    [routerLink]="['/convenio', convenio.convenioId, 'editar']">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                }
+              </td>
+            </tr>
+            } @empty {
+            <!-- @empty aparece quando a lista vem vazia -->
+            <tr>
+              <td colspan="7" class="text-center text-muted">Nenhum convênio cadastrado.</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  }
+</div>
